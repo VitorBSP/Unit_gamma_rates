@@ -206,6 +206,7 @@ final_model$coefficients$mean |> fastrep::tbl()
 
 * Pode ser considerado um modelo concorrente para o modelo de regressão beta
 
+* Leiam o paper @zhang2016simplexreg
 
 
 
