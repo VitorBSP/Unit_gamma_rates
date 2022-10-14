@@ -17,6 +17,7 @@ format:
           @*
 ---
 
+
 ## Sumário
 
 ::: {.incremental}
@@ -40,13 +41,9 @@ format:
 :::
 
 
-```{r setup, include=FALSE}
-options(htmltools.dir.version = FALSE)
 
-library(simplexreg)
-library(fastrep)
 
-```
+
 
 
 # Tudo tem um começo
@@ -81,7 +78,9 @@ library(fastrep)
 
 - Se X é r.v e tem distribuição simplex (padronizada), então sua função densidade de probabilidade (pdf) é dada por:
 
+
 $$f(x; \mu, \varphi)=\bigg\{\dfrac{\varphi}{2\pi x(1 - x)^{3}}\bigg\}^{\dfrac{1}{2}}\exp\bigg\{\dfrac{-\varphi(x - \mu)^2}{2x(1-x)\mu^2(1-\mu)^2}\bigg\}$$
+
 
 * Onde X e $\mu$ pertencem ao intervalo (0,1) e $\varphi > 0$
 
@@ -89,6 +88,7 @@ $$f(x; \mu, \varphi)=\bigg\{\dfrac{\varphi}{2\pi x(1 - x)^{3}}\bigg\}^{\dfrac{1}
 <br />
 
 * Não tem forma fechada pra Função de distribuição acumulada (fda)
+
 
 
 
@@ -100,8 +100,11 @@ Em @barndorff1991some é demonstrado algumas propriedades básicas dada a seguir
 <br />
 
 
+
 $$\text{E}(X) = \mu$$ 
+
 $$\text{Var}(X) = \mu(1 - \mu) - \sqrt{\dfrac{\varphi}{2}}\exp\bigg\{\dfrac{\varphi}{\mu^2(1-\mu)^2}\bigg\}\Gamma\bigg\{\dfrac{1}{2}, \dfrac{\varphi}{2\mu^2(1-\mu^2)}\bigg\}$$
+
 
 <br />
 
@@ -119,30 +122,11 @@ Onde $\Gamma(a,b) = \int_{b}^{\infty}t^{a-1}b^tdt$
 
 
 
-```{r}
-library(simplexreg)
-library(tidyverse)
-library(patchwork)
-
-
-
-
-rsimplex(n = 500, mu = 0.1, sig = 5) |> 
-  as_tibble() |> 
-  ggplot(aes(value)) + 
-  geom_density() +
-  theme_bw() +
-  labs(title = "Parametro de dispersão igual a 5") +
-  rsimplex(n = 500, mu = 0.1, sig = 0.01) |> 
-  as_tibble() |> 
-  ggplot(aes(value)) + 
-  geom_density() +
-  theme_bw() +
-  labs(title = "Parametro de dispersão igual a 0.01")
-
-
-
-```
+::: {.cell}
+::: {.cell-output-display}
+![](index_files/figure-revealjs/unnamed-chunk-1-1.png){width=960}
+:::
+:::
 
 
 
@@ -151,7 +135,9 @@ rsimplex(n = 500, mu = 0.1, sig = 5) |>
 ## Informações adicionais
 
 Se $\varphi^2 \to 0$ então
+
 $$\dfrac{X -\mu}{\varphi\sqrt{V(\mu)}} \to N(0,1)$$
+
 
 
 Onde $V(\mu) = \mu^3(1-\mu)^3$
@@ -171,6 +157,7 @@ $$
 g(\mu_t) = \sum_{i=1}^{k}x_{ti}\beta_i
 $$
 
+
 Em que o $g: (0,1) \to 	\mathbb{R}$ e os $\beta's$ são os parâmetros a serem estimados.
 
 ::: footer
@@ -182,7 +169,9 @@ Sim, existe uma restrição para o parâmetro de precisão/forma também
 * *longitudinal study of decay of intraocular gas (C3F8)*
 
 
-```{r, echo = T}
+::: {.cell}
+
+```{.r .cell-code}
 library(simplexreg)
 data("retinal", package = "simplexreg")
 model <- simplexreg(Gas ~ LogT + LogT2 + Level | LogT + Level | Time, corr = "AR1", id = ID, data = retinal)
@@ -192,6 +181,55 @@ final_model = model |> summary()
 
 final_model$coefficients$mean |> fastrep::tbl()
 ```
+
+::: {.cell-output-display}
+`````{=html}
+<table class=" lightable-classic" style='font-family: "Arial Narrow", "Source Sans Pro", sans-serif; margin-left: auto; margin-right: auto;'>
+<caption></caption>
+ <thead>
+  <tr>
+   <th style="text-align:left;">   </th>
+   <th style="text-align:center;"> Estimate </th>
+   <th style="text-align:center;"> Std. Error </th>
+   <th style="text-align:center;"> z value </th>
+   <th style="text-align:center;"> Pr(&gt;|z|) </th>
+  </tr>
+ </thead>
+<tbody>
+  <tr>
+   <td style="text-align:left;"> (Intercept) </td>
+   <td style="text-align:center;"> 2.7214178 </td>
+   <td style="text-align:center;"> 0.2027160 </td>
+   <td style="text-align:center;"> 13.4247824 </td>
+   <td style="text-align:center;"> 0.0000000 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LogT </td>
+   <td style="text-align:center;"> 0.0339412 </td>
+   <td style="text-align:center;"> 0.3119537 </td>
+   <td style="text-align:center;"> 0.1088021 </td>
+   <td style="text-align:center;"> 0.9133595 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> LogT2 </td>
+   <td style="text-align:center;"> -0.3294627 </td>
+   <td style="text-align:center;"> 0.0851473 </td>
+   <td style="text-align:center;"> -3.8693273 </td>
+   <td style="text-align:center;"> 0.0001091 </td>
+  </tr>
+  <tr>
+   <td style="text-align:left;"> Level </td>
+   <td style="text-align:center;"> 0.4092388 </td>
+   <td style="text-align:center;"> 0.2168897 </td>
+   <td style="text-align:center;"> 1.8868522 </td>
+   <td style="text-align:center;"> 0.0591802 </td>
+  </tr>
+</tbody>
+</table>
+
+`````
+:::
+:::
 
 ## Nem tudo tem um fim
 <br />
