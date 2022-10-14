@@ -81,7 +81,7 @@ library(fastrep)
 
 - Se X é r.v e tem distribuição simplex (padronizada), então sua função densidade de probabilidade (pdf) é dada por:
 
-$$f(x; \mu, \varphi)=\bigg\{\dfrac{\varphi}{2\pi x(1 - x)^{3}}\bigg\}^{\dfrac{1}{2}}\exp\bigg\{\dfrac{-\varphi(x - \mu)^2}{2x(1-x)\mu^2(1-\mu)^2}\bigg\}$$
+$$f(x; \mu, \varphi)=\bigg\{\dfrac{\varphi}{2\pi x^3(1 - x)^{3}}\bigg\}^{\dfrac{1}{2}}\exp\bigg\{\dfrac{-\varphi(x - \mu)^2}{2x(1-x)\mu^2(1-\mu)^2}\bigg\}$$
 
 * Onde X e $\mu$ pertencem ao intervalo (0,1) e $\varphi > 0$
 
@@ -150,13 +150,13 @@ rsimplex(n = 500, mu = 0.1, sig = 5) |>
 
 ## Informações adicionais
 
-Se $\varphi^2 \to 0$ então
+Se $\varphi^2 \to \infty$ então
 $$\dfrac{X -\mu}{\varphi\sqrt{V(\mu)}} \to N(0,1)$$
 
 
 Onde $V(\mu) = \mu^3(1-\mu)^3$
 
-* Assim pela proposição anterior, podemos calcular a acumulada/quantil quando temos o parâmetro de precisão convergindo pra zero.
+* Assim pela proposição anterior, podemos calcular a acumulada/quantil quando temos o parâmetro de dispersão convergindo pra zero.
 
 * Caso contrario usamos integração numérica.
 
