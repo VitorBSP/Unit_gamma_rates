@@ -1,11 +1,11 @@
 ---
-title: "É o simplex!"
+title: "Gama Unitária"
 subtitle: "Taxas e Proporções"
-author: "Alisson Rosa <br> <br>"
+author: "Vítor Pereira <br> <br>"
 institute: "Universidade Federal de Santa Maria"
 format: 
     revealjs:
-        theme: [blood, custom.scss]
+        theme: beige
         preview-links: auto
         chalkboard: true
         transition: fade
@@ -49,46 +49,32 @@ library(fastrep)
 ```
 
 
-# Tudo tem um começo
-
 ## Motivação 
 
 
 <br />
-<br />
 
-- **Pouca existência na época de distribuições suportando dados de taxas.**
-
+- Esquecindo dos estatísticos da importância da descoberta de novas distribuições; 
+- **Pouquíssimas distribuições que tinham suporte apenas no (0,1)** em 1977, quando foi desenvolvida por A. Grassia @grassia1977family;
+- Estudos de densidade de vírus e bactérias.
 <br />
 
  
-
-
-
-
-
 ::: footer
-Época = Anos 80
+Biology > Stats
 :::
 
 
 ## Quantidades básicas
 
 
-<br />
+- Se Y tem distribuição gama unitária com parâmetros $\alpha$ > 0 e $\tau$ > 0, podemos escrever $Y \sim GU(\alpha, \tau)$, então a função densidade de probabilidade (pdf) é dada por:
 
+$$f(y, \alpha, \tau)=\dfrac{\alpha^{\tau}}{\Gamma{\tau}}y^{\alpha-1}\left[\ln(\dfrac{1}{y})\right]^{\tau - 1}$$
 
+- Onde Y $\in$ (0,1);
 
-- Se X é r.v e tem distribuição simplex (padronizada), então sua função densidade de probabilidade (pdf) é dada por:
-
-$$f(x; \mu, \varphi)=\bigg\{\dfrac{\varphi}{2\pi x^3(1 - x)^{3}}\bigg\}^{\dfrac{1}{2}}\exp\bigg\{\dfrac{-\varphi(x - \mu)^2}{2x(1-x)\mu^2(1-\mu)^2}\bigg\}$$
-
-* Onde X e $\mu$ pertencem ao intervalo (0,1) e $\varphi > 0$
-
-
-<br />
-
-* Não tem forma fechada pra Função de distribuição acumulada (fda)
+- Não tem forma fechada pra Função de distribuição acumulada (fda).
 
 
 
@@ -96,124 +82,95 @@ $$f(x; \mu, \varphi)=\bigg\{\dfrac{\varphi}{2\pi x^3(1 - x)^{3}}\bigg\}^{\dfrac{
 
 ## Quantidades Básicas
 
-Em @barndorff1991some é demonstrado algumas propriedades básicas dada a seguir:
-<br />
+Também @grassia1977family é demonstrado algumas propriedades básicas dada a seguir:
 
+$$\text{E}(Y) = \left[\dfrac{\alpha}{\alpha+1}\right]^\tau$$ 
+$$\text{Var}(Y) = \left\{\left[\dfrac{\alpha}{\alpha}^{\tau}\right] - \left[\dfrac{\alpha}{\alpha + 1}\right]^{2\tau}\right\} = \mu\left[\dfrac{1}{\left(2 - \mu^{\dfrac{1}{\tau}}\right)} - \mu\right]$$
 
-$$\text{E}(X) = \mu$$ 
-$$\text{Var}(X) = \mu(1 - \mu) - \sqrt{\dfrac{\varphi}{2}}\exp\bigg\{\dfrac{\varphi}{\mu^2(1-\mu)^2}\bigg\}\Gamma\bigg\{\dfrac{1}{2}, \dfrac{\varphi}{2\mu^2(1-\mu^2)}\bigg\}$$
+---
 
-<br />
+## Quantidades Básicas
 
-Onde $\Gamma(a,b) = \int_{b}^{\infty}t^{a-1}b^tdt$
+-  É perceptível que a variância depende da média, para $\mu$ fixado, e diminui quando $\tau$ cresce;
 
+- Curiosidade: Quando $\tau \rightarrow \infty$, a variância converge a $\mu(1 - \mu)$, assim coincidindo com a variância da distribuição beta, quando  $\phi \rightarrow 0$.
 
-![](https://stickerly.pstatic.net/sticker_pack/gmCtSwxEQgkehtxGX6Ohhg/0E91E6/31/2519c2c6-833e-450a-be58-edd0e0e9187e.png){.absolute top=140 left=100 width="280" height="150"}
+- Derivação da Gama unitária:
+    - $X \sim Gamma(\alpha, \tau)$ onde $\alpha$ > 0 e $\tau$ > 0;
+    - Então $Y = e^{-X}$, assim $Y \sim GU(\alpha, \tau)$,  com $\alpha$ > 0 e $\tau$ > 0.
 
+- Tem outra reparametrização da Gama Unitária, onde temos que a Esperança é $\mu$ e $\phi = \tau$, demonstrada em @limadistribuiccoes. 
 
-<br />
-
-
+---
 ## Alguns gráficos {background-color="white"}
 
 
 
+```{julia}
+#| echo: false
 
-```{r}
-library(simplexreg)
-library(tidyverse)
-library(patchwork)
+using Plots, SpecialFunctions
+
+pgu = function(x,alpha,tau)
+    not_kernel = (alpha^tau)/(gamma(tau))
+    kernel = (x^(alpha-1))*(log(1/x))^(tau -1)
+    return not_kernel*kernel
+end;
+
+x = [0.01:0.01:0.99;];
+alpha = 0.5;
+tau = 0.5;
+
+probs = pgu.(x,alpha,tau);
+
+p1 = plot(x,  probs, legend = false, color = :black);
+p1 = xlabel!("Suporte da Gamma Unitária");
+p1 = ylabel!("Densidade");
 
 
+alpha = 0.25;
 
+probs = pgu.(x,alpha,tau);
 
-rsimplex(n = 500, mu = 0.1, sig = 5) |> 
-  as_tibble() |> 
-  ggplot(aes(value)) + 
-  geom_density() +
-  theme_bw() +
-  labs(title = "Parametro de dispersão igual a 5") +
-  rsimplex(n = 500, mu = 0.1, sig = 0.01) |> 
-  as_tibble() |> 
-  ggplot(aes(value)) + 
-  geom_density() +
-  theme_bw() +
-  labs(title = "Parametro de dispersão igual a 0.01")
-
+p2 = plot(x,  probs, legend = false, color = :black);
+p2 = xlabel!("Suporte da Gamma Unitária");
+p2 = ylabel!("Densidade");
 
 
 ```
 
+```{julia}
+#| label: fig5
+#| fig-cap: "Tentativa de gráfico da densidade"
+#| echo: false
+#| fig-align: center
+l = @layout [a ; b];
 
-
-
-
-## Informações adicionais
-
-Se $\varphi^2 \to \infty$ então
-$$\dfrac{X -\mu}{\varphi\sqrt{V(\mu)}} \to N(0,1)$$
-
-
-Onde $V(\mu) = \mu^3(1-\mu)^3$
-
-* Assim pela proposição anterior, podemos calcular a acumulada/quantil quando temos o parâmetro de dispersão convergindo pra zero.
-
-* Caso contrario usamos integração numérica.
-
-
-# Aplicações (ão)
-
-## Modelo de regressão Simplex
-
-Seja $Y_1, Y_2,... Y_n$ variáveis aleatórias independentes onde cada uma segue uma distribuição simplex com média $\mu_t$, assim o modelo de regressão simplex fica definido como:
-
-$$
-g(\mu_t) = \sum_{i=1}^{k}x_{ti}\beta_i
-$$
-
-Em que o $g: (0,1) \to 	\mathbb{R}$ e os $\beta's$ são os parâmetros a serem estimados.
-
-::: footer
-Sim, existe uma restrição para o parâmetro de precisão/forma também
-:::
-
-## Aplicação {background-color="white"}
-
-* *longitudinal study of decay of intraocular gas (C3F8)*
-
-
-```{r, echo = T}
-library(simplexreg)
-data("retinal", package = "simplexreg")
-model <- simplexreg(Gas ~ LogT + LogT2 + Level | LogT + Level | Time, corr = "AR1", id = ID, data = retinal)
-
-final_model = model |> summary()
-
-
-final_model$coefficients$mean |> fastrep::tbl()
+plot(p1, p2, layout = l)
 ```
 
-## Nem tudo tem um fim
-<br />
-
-* Sim, é possível gerar números aleatórios com a distribuição Simplex
-
-<br />
-
-* A distribuição Simplex tem  mais foco em regressão
-
-<br />
-
-* Pode ser considerado um modelo concorrente para o modelo de regressão beta
-
-* Leiam o paper @zhang2016simplexreg
-
-
-
 ::: footer
-Mas vc sabia que o artigo da regressão beta tem #input$citações???
+Tinha um pacote do R do Diego Canterle, mas não está mais no GH.
 :::
+
+# Aplicações
+
+
+- Estimar densidade de bactérias e vírus para verificação da diluição da infeccção causada pelo hospedeiro;
+
+- Estimar a precisão de crianças disléxicas e não disléxicas (na Austrália);
+    - Ganhou da Beta;
+
+- Modelo de regressão recente, proposto em @pereira2017improved;
+
+- Contribuições recentes e preambulares em Hidrologia.
+
+
+
+
 
 ## Bibliografia
 
-![](https://media.tenor.com/OaFwdekCkuIAAAAC/evangelion-rei-plush.gif){.absolute top=370 left=100 width="100" height=290"}
+![](https://media3.giphy.com/media/MT5UUV1d4CXE2A37Dg/200w.gif?cid=82a1493byliqhikps2id8d7rh5l16p52t4fn94dnt3ngyg33&rid=200w.gif&ct=g){.absolute top=370 left=200 width="200" height=250"}
+
+![](https://media.giphy.com/media/9ADoZQgs0tyww/giphy.gif){.absolute top=370 right=200 width="200" height=350"}
