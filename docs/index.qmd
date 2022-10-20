@@ -99,14 +99,12 @@ $$\text{Var}(Y) = \left\{\left[\dfrac{\alpha}{\alpha}^{\tau}\right] - \left[\dfr
 
 ```{julia}
 using Plots, SpecialFunctions, QuadGK, LaTeXStrings
+l = @layout [a ; b];
 ```
 
 
 ```{julia}
 #| echo: false
-
-using Plots, SpecialFunctions, QuadGK, LaTeXStrings
-
 pgu = function(x,alpha,tau)
     not_kernel = (alpha^tau)/(gamma(tau))
     kernel = (x^(alpha-1))*(log(1/x))^(tau -1)
@@ -117,84 +115,69 @@ x = [0.01:0.01:0.99;];
 alpha = 0.5;
 tau = 0.5;
 
-
-probs = pgu.(x,alpha,tau);
-
-p1 = plot(x,  probs, legend = false, color = :black);
-p1 = xlabel!("Suporte da Gamma Unitária");
-p1 = ylabel!("Densidade");
-
-
-alpha = 0.25;
-
-probs = pgu.(x,alpha,tau);
-
-p2 = plot(x,  probs, legend = false, color = :black);
-p2 = xlabel!("Suporte da Gamma Unitária");
-p2 = ylabel!("Densidade");
-
-
-```
-
-```{julia}
-#| label: figpdf
-#| echo: false
-#| fig-align: center
-l = @layout [a ; b];
-
-plot(p1, p2, layout = l)
-```
-
-::: footer
-Tinha um pacote do R do Diego Canterle, mas não está mais no GH.
-:::
-
----
-## Gráficos {background-color="white"}
-
-```{julia}
-#| echo: false
-alpha = 0.5;
-tau = 0.5;
-
-pgu_int = function(x)
+pgu_integrate = function(x)
     not_kernel = (alpha^tau)/(gamma(tau))
     kernel = (x^(alpha-1))*(log(1/x))^(tau -1)
     return not_kernel*kernel
 end;
 
-integral1 = quadgk.(pgu_int, 0, x, rtol=1e-3);
-
+integral1 = quadgk.(pgu_integrate, 0, x, rtol=1e-3);
+probs1 = pgu.(x,alpha,tau);
 alpha = 0.73;
-
-integral2 = quadgk.(pgu_int, 0, x, rtol=1e-3);
-
-integral1 = map(x->x[1], integral1);
-integral2 = getindex.(integral2, 1);
-
-p1 = plot(x, integral1, legend = false, color = :black);
-p1 = xlabel!(L"GU($\alpha$ = 0.5, $\tau$ = 0.5)");
-p1 = ylabel!("Probabilidade");
-
-
-p2 = plot(x,  integral2, legend = false, color = :black);
-p2 = xlabel!(L"GU($\alpha$ = 0.73, $\tau$ = 0.5)");
-p2 = ylabel!("Probabilidade");
+integral2 = quadgk.(pgu_integrate, 0, x, rtol=1e-3);
+probs2 = pgu.(x,alpha,tau);
 ```
+
+::: {.panel-tabset}
+
+### Caso 1
 
 ```{julia}
-#| label: figcdf
-#| echo: false
-#| fig-align: center
-l = @layout [a ; b];
+plot(x,  probs1, legend = false, color = "#000000")
+xlabel!("Suporte da Gamma Unitária")
+ylabel!("Densidade")
+```
 
-plot(p1, p2, layout = l)
+### Caso 2
+
+```{julia}
+plot(x,  probs2, legend = false, color = "#000000")
+xlabel!("Suporte da Gamma Unitária")
+ylabel!("Densidade")
+```
+:::
+
+---
+## Gráficos {background-color="white"}
+
+::: {.panel-tabset}
+
+### Caso 1
+
+```{julia}
+integral1 = map(x->x[1], integral1);
+integral2 = getindex.(integral2, 1);
 ```
 
 
-::: footer
-Maior dificuldade: os parâmetros da fda para utilização da integral numérica no Julia, tem que ser declarado no escopo global. 
+```{julia}
+#| echo: false
+plot(x, integral1, legend = false, color = "#000000")
+xlabel!(L"GU($\alpha$ = 0.5, $\tau$ = 0.5)")
+ylabel!("Probabilidade")
+```
+
+### Caso 2
+
+```{julia}
+plot(x,  integral2, legend = false, color = "#000000")
+xlabel!(L"GU($\alpha$ = 0.73, $\tau$ = 0.5)")
+ylabel!("Probabilidade")
+```
+
 :::
+
+
 ---
 # Aplicações
 
