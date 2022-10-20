@@ -14,7 +14,7 @@ format:
         height: 720
         bibliography: bib.bib
         nocite: |
-          @*
+                @*
 ---
 
 ## Sumário
@@ -27,7 +27,10 @@ format:
 
 <br />
 
- 
+```{r}
+teste = 1
+```
+
 
 - Aplicações
 
@@ -38,16 +41,6 @@ format:
 - Bibliografia
 
 :::
-
-
-```{r setup, include=FALSE}
-options(htmltools.dir.version = FALSE)
-
-library(simplexreg)
-library(fastrep)
-
-```
-
 
 ## Motivação 
 
@@ -102,14 +95,17 @@ $$\text{Var}(Y) = \left\{\left[\dfrac{\alpha}{\alpha}^{\tau}\right] - \left[\dfr
 - Tem outra reparametrização da Gama Unitária, onde temos que a Esperança é $\mu$ e $\phi = \tau$, demonstrada em @limadistribuiccoes. 
 
 ---
-## Alguns gráficos {background-color="white"}
+## Gráficos {background-color="white"}
 
+```{julia}
+using Plots, SpecialFunctions, QuadGK, LaTeXStrings
+```
 
 
 ```{julia}
 #| echo: false
 
-using Plots, SpecialFunctions
+using Plots, SpecialFunctions, QuadGK, LaTeXStrings
 
 pgu = function(x,alpha,tau)
     not_kernel = (alpha^tau)/(gamma(tau))
@@ -120,6 +116,7 @@ end;
 x = [0.01:0.01:0.99;];
 alpha = 0.5;
 tau = 0.5;
+
 
 probs = pgu.(x,alpha,tau);
 
@@ -140,8 +137,7 @@ p2 = ylabel!("Densidade");
 ```
 
 ```{julia}
-#| label: fig5
-#| fig-cap: "Tentativa de gráfico da densidade"
+#| label: figpdf
 #| echo: false
 #| fig-align: center
 l = @layout [a ; b];
@@ -153,6 +149,53 @@ plot(p1, p2, layout = l)
 Tinha um pacote do R do Diego Canterle, mas não está mais no GH.
 :::
 
+---
+## Gráficos {background-color="white"}
+
+```{julia}
+#| echo: false
+alpha = 0.5;
+tau = 0.5;
+
+pgu_int = function(x)
+    not_kernel = (alpha^tau)/(gamma(tau))
+    kernel = (x^(alpha-1))*(log(1/x))^(tau -1)
+    return not_kernel*kernel
+end;
+
+integral1 = quadgk.(pgu_int, 0, x, rtol=1e-3);
+
+alpha = 0.73;
+
+integral2 = quadgk.(pgu_int, 0, x, rtol=1e-3);
+
+integral1 = map(x->x[1], integral1);
+integral2 = getindex.(integral2, 1);
+
+p1 = plot(x, integral1, legend = false, color = :black);
+p1 = xlabel!(L"GU($\alpha$ = 0.5, $\tau$ = 0.5)");
+p1 = ylabel!("Probabilidade");
+
+
+p2 = plot(x,  integral2, legend = false, color = :black);
+p2 = xlabel!(L"GU($\alpha$ = 0.73, $\tau$ = 0.5)");
+p2 = ylabel!("Probabilidade");
+```
+
+```{julia}
+#| label: figcdf
+#| echo: false
+#| fig-align: center
+l = @layout [a ; b];
+
+plot(p1, p2, layout = l)
+```
+
+
+::: footer
+Maior dificuldade: os parâmetros da fda para utilização da integral numérica no Julia, tem que ser declarado no escopo global. 
+:::
+---
 # Aplicações
 
 
