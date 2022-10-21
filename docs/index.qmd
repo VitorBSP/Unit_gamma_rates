@@ -27,10 +27,7 @@ format:
 
 <br />
 
-```{r}
-teste = 1
-```
-
+ 
 
 - Aplicações
 
@@ -42,15 +39,27 @@ teste = 1
 
 :::
 
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+
+library(simplexreg)
+library(fastrep)
+
+```
+
+
 ## Motivação 
 
 
 <br />
 
 - Esquecindo dos estatísticos da importância da descoberta de novas distribuições; 
-- **Pouquíssimas distribuições que tinham suporte apenas no (0,1)** em 1977, quando foi desenvolvida por A. Grassia @grassia1977family;
+- **Pouquíssimas distribuições que tinham suporte apenas no (0,1)** em 1977, quando foi desenvolvida por A. @grassia1977family;
 - Estudos de densidade de vírus e bactérias.
 <br />
+
+![](https://media.giphy.com/media/9ADoZQgs0tyww/giphy.gif){.absolute top=500 right=500 width="200" height=350"}
 
  
 ::: footer
@@ -71,7 +80,7 @@ $$f(y, \alpha, \tau)=\dfrac{\alpha^{\tau}}{\Gamma{\tau}}y^{\alpha-1}\left[\ln(\d
 
 
 
----
+
 
 ## Quantidades Básicas
 
@@ -80,7 +89,7 @@ Também @grassia1977family é demonstrado algumas propriedades básicas dada a s
 $$\text{E}(Y) = \left[\dfrac{\alpha}{\alpha+1}\right]^\tau$$ 
 $$\text{Var}(Y) = \left\{\left[\dfrac{\alpha}{\alpha}^{\tau}\right] - \left[\dfrac{\alpha}{\alpha + 1}\right]^{2\tau}\right\} = \mu\left[\dfrac{1}{\left(2 - \mu^{\dfrac{1}{\tau}}\right)} - \mu\right]$$
 
----
+
 
 ## Quantidades Básicas
 
@@ -94,8 +103,8 @@ $$\text{Var}(Y) = \left\{\left[\dfrac{\alpha}{\alpha}^{\tau}\right] - \left[\dfr
 
 - Tem outra reparametrização da Gama Unitária, onde temos que a Esperança é $\mu$ e $\phi = \tau$, demonstrada em @limadistribuiccoes. 
 
----
-## Gráficos {background-color="white"}
+
+## Alguns gráficos {background-color="white"}
 
 ```{julia}
 using Plots, SpecialFunctions, QuadGK, LaTeXStrings
@@ -111,16 +120,17 @@ pgu = function(x,alpha,tau)
     return not_kernel*kernel
 end;
 
-x = [0.01:0.01:0.99;];
-alpha = 0.5;
-tau = 0.5;
-
 pgu_integrate = function(x)
     not_kernel = (alpha^tau)/(gamma(tau))
     kernel = (x^(alpha-1))*(log(1/x))^(tau -1)
     return not_kernel*kernel
 end;
+```
 
+```{julia}
+x = [0.01:0.01:0.99;];
+alpha = 0.5;
+tau = 0.5;
 integral1 = quadgk.(pgu_integrate, 0, x, rtol=1e-3);
 probs1 = pgu.(x,alpha,tau);
 alpha = 0.73;
@@ -128,57 +138,57 @@ integral2 = quadgk.(pgu_integrate, 0, x, rtol=1e-3);
 probs2 = pgu.(x,alpha,tau);
 ```
 
-::: {.panel-tabset}
 
-### Caso 1
 
 ```{julia}
-plot(x,  probs1, legend = false, color = "#000000")
-xlabel!("Suporte da Gamma Unitária")
-ylabel!("Densidade")
+gr(size = (1200,800));
+p1 = plot(x,  probs1, legend = false, color = "#000000");
+p1 = xlabel!("Suporte da Gamma Unitária");
+p1 = ylabel!("Densidade");
+p2 = plot(x,  probs2, legend = false, color = "#000000");
+p2 = xlabel!("Suporte da Gamma Unitária");
+p2 = ylabel!("Densidade");
 ```
-
-### Caso 2
 
 ```{julia}
-plot(x,  probs2, legend = false, color = "#000000")
-xlabel!("Suporte da Gamma Unitária")
-ylabel!("Densidade")
+#| label: fig1
+#| echo: false
+#| fig-align: center
+plot(p1, p2, layout = l)
 ```
+
+::: footer
+Tinha um pacote do R do Diego Canterle (ugamma/ugrpl), mas não está mais no GH.
 :::
 
----
 ## Gráficos {background-color="white"}
-
-::: {.panel-tabset}
-
-### Caso 1
 
 ```{julia}
 integral1 = map(x->x[1], integral1);
 integral2 = getindex.(integral2, 1);
 ```
 
+```{julia}
+p3 = plot(x, integral1, legend = false, color = :black);
+p3 = xlabel!(L"GU($\alpha$ = 0.5, $\tau$ = 0.5)");
+p3 = ylabel!("Probabilidade");
+p4 = plot(x,  integral2, legend = false, color = :black);
+p4 = xlabel!(L"GU($\alpha$ = 0.73, $\tau$ = 0.5)");
+p4 = ylabel!("Probabilidade");
+```
 
 ```{julia}
+#| label: figcdf
 #| echo: false
-plot(x, integral1, legend = false, color = "#000000")
-xlabel!(L"GU($\alpha$ = 0.5, $\tau$ = 0.5)")
-ylabel!("Probabilidade")
+#| fig-align: center
+plot(p3, p4, layout = l)
 ```
 
-### Caso 2
-
-```{julia}
-plot(x,  integral2, legend = false, color = "#000000")
-xlabel!(L"GU($\alpha$ = 0.73, $\tau$ = 0.5)")
-ylabel!("Probabilidade")
-```
-
+::: footer
+Maior dificuldade: os parâmetros da fda para utilização da integral numérica no Julia, tem que ser declarado no escopo global. 
 :::
 
 
----
 # Aplicações
 
 
@@ -199,4 +209,6 @@ ylabel!("Probabilidade")
 
 ![](https://media3.giphy.com/media/MT5UUV1d4CXE2A37Dg/200w.gif?cid=82a1493byliqhikps2id8d7rh5l16p52t4fn94dnt3ngyg33&rid=200w.gif&ct=g){.absolute top=370 left=200 width="200" height=250"}
 
-![](https://media.giphy.com/media/9ADoZQgs0tyww/giphy.gif){.absolute top=370 right=200 width="200" height=350"}
+![](./imgs/ajuda.png){.absolute top=370 right=200 width="300" height=400"}
+
+
